@@ -1,5 +1,5 @@
 .*.sw*
 build/
-audiobook-split-ffmpeg
-!/cmd/audiobook-split-ffmpeg/
+audiobook-split-ffmpeg-go
+!/cmd/audiobook-split-ffmpeg-go/
 

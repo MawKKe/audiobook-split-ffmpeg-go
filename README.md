@@ -32,7 +32,7 @@ shows the following:
 
 Then, running:
 
-    $ audiobook-split-ffmpeg --infile mybook.m4b --outdir /tmp/foo
+    $ audiobook-split-ffmpeg-go --infile mybook.m4b --outdir /tmp/foo
 
 ..produces the following files:
 - `/tmp/foo/001 - Chapter Zero.m4b`
@@ -45,7 +45,7 @@ You may then play these files with your preferred application.
 
 To install the main executable:
 
-    $ go install github.com/MawKKe/audiobook-split-ffmpeg-go/cmd/audiobook-split-ffmpeg@latest
+    $ go install github.com/MawKKe/audiobook-split-ffmpeg-go/cmd/audiobook-split-ffmpeg-go@latest
 
 This should place the executable into your user's `$GOPATH/bin/`. If that path is in your `$PATH`,
 you are good to go. Next, see `Usage` below.
@@ -54,17 +54,17 @@ However, if you want to use the library in your projects, run:
 
     $ go get github.com/MawKKe/audiobook-split-ffmpeg-go
 
-See the file `cmd/audiobook-split-ffmpeg/main.go` for hints how to use the library.
+See the file `cmd/audiobook-split-ffmpeg-go/main.go` for hints how to use the library.
 
 # Usage
 
 See the help:
 
-    $ audiobook-split-ffmpeg -h
+    $ audiobook-split-ffmpeg-go -h
 
 In the simplest case you can just call
 
-    $ audiobook-split-ffmpeg --infile /path/to/audio.m4b --outdir foo
+    $ audiobook-split-ffmpeg-go --infile /path/to/audio.m4b --outdir foo
 
 Note that this script will never overwrite files in `foo/`, so you must delete conflicting
 files manually (or specify some other empty/nonexistent directory)
@@ -108,7 +108,7 @@ To build the main binary:
 
 or manually:
 
-    $ go build cmd/audiobook-split-ffmpeg
+    $ go build cmd/audiobook-split-ffmpeg-go
 
 To run tests:
 
