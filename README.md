@@ -43,10 +43,18 @@ You may then play these files with your preferred application.
 
 # Install
 
-    $ go get https://github.com/MawKKe/audiobook-split-ffmpeg-go/cmd/audiobook-split-ffmpeg
+To install the main executable:
 
-This should place the main script into your user's PATH (`$HOME/.local/bin/` or
-similar). Next, see `Usage` below.
+    $ go install github.com/MawKKe/audiobook-split-ffmpeg-go/cmd/audiobook-split-ffmpeg@latest
+
+This should place the executable into your user's `$GOPATH/bin/`. If that path is in your `$PATH`,
+you are good to go. Next, see `Usage` below.
+
+However, if you want to use the library in your projects, run:
+
+    $ go get github.com/MawKKe/audiobook-split-ffmpeg-go
+
+See the file `cmd/audiobook-split-ffmpeg/main.go` for hints how to use the library.
 
 # Usage
 
