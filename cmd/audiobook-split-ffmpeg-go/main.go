@@ -17,16 +17,9 @@ func main() {
 	flagOnlyShowChaps := flag.Bool("only-show-chapters", false, "Only show parsed chapters, then exit. OPTIONAL")
 	flagOnlyShowCmds := flag.Bool("only-show-commands", false, "Only show final ffmpeg commands, then exit. OPTIONAL")
 	flagConcurrency := flag.Int("jobs", 0, "Number of concurrent ffmpeg jobs (default: num of cpus). OPTIONAL")
-	//flagDryRun := flag.Bool("dry-run", false, "Only show which ffmpeg commands would run, without running them")
 	flagNoUseTitle := flag.Bool("no-use-title", false, "Only show which ffmpeg commands would run, without running them. OPTIONAL")
 
 	flag.Parse()
-
-	/*
-	   if(*flagDryRun || *flagNoUseTitle){
-	       panic("TODO flag -dry-run or NoUseTitle")
-	   }
-	*/
 
 	// Both are required. However, the 'flag' package does not allow us
 	// to specify that in the option declaration like python argparse does.
