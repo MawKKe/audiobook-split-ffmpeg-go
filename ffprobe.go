@@ -36,9 +36,15 @@ func ReadFile(infile string) (InputFileMetadata, error) {
 		return InputFileMetadata{}, err
 	}
 	base := filepath.Base(infile)
-	ext := strings.TrimPrefix(filepath.Ext(base), ".") // remove leading zero. Why is it even included???
+	ext := filepath.Ext(base)
 	basenoext := strings.TrimSuffix(base, ext)
-	return InputFileMetadata{FFProbeOutput: &output, Path: infile, BaseNoExt: basenoext, Extension: ext}, nil
+	extnodot := strings.TrimPrefix(ext, ".")
+	return InputFileMetadata{
+		FFProbeOutput: &output,
+		Path:          infile,
+		BaseNoExt:     basenoext,
+		Extension:     extnodot,
+	}, nil
 }
 
 // We use 'ffprobe' for collecting chapter information from the given file.

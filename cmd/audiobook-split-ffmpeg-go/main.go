@@ -18,7 +18,7 @@ func main() {
 	flagOnlyShowCmds := flag.Bool("only-show-commands", false, "Only show final ffmpeg commands, then exit. OPTIONAL")
 	flagConcurrency := flag.Int("jobs", 0, "Number of concurrent ffmpeg jobs (default: num of cpus). OPTIONAL")
 	//flagDryRun := flag.Bool("dry-run", false, "Only show which ffmpeg commands would run, without running them")
-	//flagNoUseTitle := flag.Bool("no-use-title", false, "Only show which ffmpeg commands would run, without running them")
+	flagNoUseTitle := flag.Bool("no-use-title", false, "Only show which ffmpeg commands would run, without running them. OPTIONAL")
 
 	flag.Parse()
 
@@ -54,6 +54,8 @@ func main() {
 	}
 
 	opts := ffmpegsplit.DefaultOutFileOpts()
+
+	opts.UseTitleInName = !*flagNoUseTitle
 
 	workItems, err := imeta.ComputeWorkItems(*flagOutdir, opts)
 	if err != nil {
