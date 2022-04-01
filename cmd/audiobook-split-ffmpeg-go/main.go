@@ -4,7 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
-
+	"strconv"
+	"strings"
 	ffmpegsplit "github.com/MawKKe/audiobook-split-ffmpeg-go"
 )
 
@@ -13,6 +14,7 @@ func main() {
 	flagInfile := flag.String("infile", "", "Input file path. REQUIRED.")
 	flagOutdir := flag.String("outdir", "", "Output directory path. REQUIRED.")
 	flagOnlyShowChaps := flag.Bool("only-show-chapters", false, "Only show parsed chapters, then exit. OPTIONAL")
+	flagOnlyShowCmds := flag.Bool("only-show-commands", false, "Only show final ffmpeg commands, then exit. OPTIONAL")
 	flagConcurrency := flag.Int("jobs", 0, "Number of concurrent ffmpeg jobs (default: num of cpus). OPTIONAL")
 	//flagDryRun := flag.Bool("dry-run", false, "Only show which ffmpeg commands would run, without running them")
 	//flagNoUseTitle := flag.Bool("no-use-title", false, "Only show which ffmpeg commands would run, without running them")
@@ -58,7 +60,22 @@ func main() {
 		os.Exit(2)
 	}
 
-	fmt.Printf("Computed %v WorkItems\n", len(workItems))
+	//fmt.Printf("Computed %v WorkItems\n", len(workItems))
+
+	if *flagOnlyShowCmds {
+		for i := range workItems {
+			fmt.Println(strings.Join(escape_cmd(workItems[i].GetCommand()), " "))
+		}
+		os.Exit(0)
+	}
 
 	ffmpegsplit.Process(workItems, *flagConcurrency)
+}
+
+func escape_cmd(unescaped []string) []string {
+	var escaped []string
+	for _, s := range unescaped {
+		escaped = append(escaped, strconv.Quote(s))
+	}
+	return escaped
 }

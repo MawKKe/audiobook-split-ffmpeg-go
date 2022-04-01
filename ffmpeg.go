@@ -57,8 +57,11 @@ func (imeta *InputFileMetadata) ComputeWorkItems(outdir string, opts OutFileOpts
 	return w_items, nil
 }
 
-// Produces a list of arguments that are going to be passed to FFMpeg for actual processing step.
+func (wi *workItem) GetCommand() []string {
+	return append([]string{"ffmpeg"}, wi.FFmpegArgs()...)
+}
 
+// Produces a list of arguments that are going to be passed to FFMpeg for actual processing step.
 func (wi *workItem) FFmpegArgs() []string {
 	args := []string{
 		"-nostdin",
