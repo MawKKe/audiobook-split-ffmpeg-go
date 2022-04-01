@@ -19,4 +19,4 @@ fix:
 audiobook-split-ffmpeg-go:
 	go build -o $@ ./cmd/audiobook-split-ffmpeg-go
 
-.PHONY: build test fmt vet audiobook-split-ffmpeg
+.PHONY: build test fmt vet audiobook-split-ffmpeg-go
