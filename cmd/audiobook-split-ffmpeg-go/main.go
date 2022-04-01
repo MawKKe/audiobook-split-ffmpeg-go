@@ -38,11 +38,11 @@ func main() {
 	imeta, err := ffmpegsplit.ReadFile(*flagInfile)
 
 	if err != nil {
-		fmt.Println(fmt.Errorf("Failed to read chapters: %v\n", err))
+		fmt.Println(fmt.Errorf("Failed to read chapters: %w", err))
 		os.Exit(1)
 	} else if imeta.NumChapters() == 0 {
 		fmt.Println("Error(?): Input file has no chapter metadata. Cannot continue.")
-		os.Exit(1)
+		os.Exit(2)
 	}
 
 	if *flagOnlyShowChaps {
