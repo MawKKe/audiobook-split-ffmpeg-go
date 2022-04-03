@@ -21,33 +21,32 @@ func Process(workItems []workItem, maxConcurrent int) {
 
 	var wg sync.WaitGroup
 	chJob := make(chan job)
-	chRes := make(chan result, len(workItems))
-	go func() {
-		for res := range chRes {
-			if res.err != nil {
-				fmt.Println(fmt.Errorf("extraction failed: %v", res.err))
-			} else {
-				fmt.Println("Done:", res.wi.Outfile)
-			}
-		}
-	}()
+    chRes := make(chan result)
 	for t := 0; t < maxConcurrent; t++ {
 		wg.Add(1)
-		go worker(chJob, chRes, &wg)
+        go func(){
+            defer wg.Done()
+            for job := range chJob {
+                err := job.wi.Process()
+                chRes <- result{job.wi, err}
+            }
+        }()
 	}
 	for i := range workItems {
-		//fmt.Printf("%+v\n", wi.FFmpegArgs())
 		chJob <- job{&workItems[i]}
 	}
-	close(chJob)
-	wg.Wait()
-	close(chRes)
+    for i := 0; i < len(workItems); i++ {
+        // TODO This receive may block indefinetely. Use select with timeouts?
+        // ALTHOUGH a large chapter may take a long time to process. How to
+        // distinguish long-running processes from those that have crashed?
+        res := <-chRes
+        if res.err != nil {
+            fmt.Println(fmt.Errorf("extraction failed: %v", res.err))
+        } else {
+            fmt.Println("Done:", res.wi.Outfile)
+        }
+    }
+	close(chJob) // causes workers to exit loop
+	wg.Wait()    // wait workers
 }
 
-func worker(jobs <-chan job, results chan<- result, wg *sync.WaitGroup) {
-	defer wg.Done()
-	for job := range jobs {
-		err := job.wi.Process()
-		results <- result{job.wi, err}
-	}
-}
