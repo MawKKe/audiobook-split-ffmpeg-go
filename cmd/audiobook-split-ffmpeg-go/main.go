@@ -65,8 +65,8 @@ func main() {
 		os.Exit(0)
 	}
 
-    status := ffmpegsplit.Process(workItems, *flagConcurrency)
-    fmt.Println("Status:", status)
+	status := ffmpegsplit.Process(workItems, *flagConcurrency)
+	fmt.Println("Status:", status)
 }
 
 func escape_cmd(unescaped []string) []string {
