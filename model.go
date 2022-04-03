@@ -23,11 +23,11 @@ type InputFileMetadata struct {
 	Path          string
 	BaseNoExt     string
 	Extension     string
-	FFProbeOutput *FFProbeOutput
+	FFProbeOutput FFProbeOutput
 }
 
 // How many chapters were found in the input file by ffprobe
-func (imeta *InputFileMetadata) NumChapters() int {
+func (imeta InputFileMetadata) NumChapters() int {
 	return len(imeta.FFProbeOutput.Chapters)
 }
 
@@ -38,9 +38,9 @@ type workItem struct {
 	Infile       string
 	Outfile      string
 	OutDirectory string
-	Chapter      *Chapter
-	imeta        *InputFileMetadata
-	opts         *OutFileOpts
+	Chapter      Chapter
+	imeta        InputFileMetadata
+	opts         OutFileOpts
 }
 
 // Used-defined options specifying how the output files will be named and what kind

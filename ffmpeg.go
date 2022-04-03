@@ -12,7 +12,7 @@ import (
 
 // Chooses what the final chapter filename should be based on the options and
 // available metadata.
-func computeOutname(outdir string, opts OutFileOpts, ch *Chapter, imeta *InputFileMetadata) string {
+func computeOutname(outdir string, opts OutFileOpts, ch Chapter, imeta InputFileMetadata) string {
 	baseName := imeta.BaseNoExt
 	if Title, ok := ch.Tags["title"]; ok && opts.UseTitleInName {
 		baseName = Title
@@ -28,7 +28,7 @@ func computeOutname(outdir string, opts OutFileOpts, ch *Chapter, imeta *InputFi
 // the necessary information in order to extract the chapter using ffmpeg. When
 // the sequence of workItems have been produced, the final processing step
 // can be performed by calling workItem.Process().
-func (imeta *InputFileMetadata) ComputeWorkItems(outdir string, opts OutFileOpts) ([]workItem, error) {
+func (imeta InputFileMetadata) ComputeWorkItems(outdir string, opts OutFileOpts) ([]workItem, error) {
 	var w_items []workItem
 
 	if opts.EnumOffset < 0 {
@@ -40,8 +40,7 @@ func (imeta *InputFileMetadata) ComputeWorkItems(outdir string, opts OutFileOpts
 		opts.EnumPaddedWidth = len(fmt.Sprintf("%d", maxChAdjusted))
 	}
 
-	for i := range imeta.FFProbeOutput.Chapters {
-		chap := &imeta.FFProbeOutput.Chapters[i]
+	for _, chap := range imeta.FFProbeOutput.Chapters {
 		outfile := computeOutname(outdir, opts, chap, imeta)
 		wi := workItem{
 			Infile:       imeta.Path,
@@ -49,7 +48,7 @@ func (imeta *InputFileMetadata) ComputeWorkItems(outdir string, opts OutFileOpts
 			OutDirectory: outdir,
 			Chapter:      chap,
 			imeta:        imeta,
-			opts:         &opts,
+			opts:         opts,
 		}
 		w_items = append(w_items, wi)
 	}
@@ -57,7 +56,7 @@ func (imeta *InputFileMetadata) ComputeWorkItems(outdir string, opts OutFileOpts
 	return w_items, nil
 }
 
-func (wi *workItem) GetCommand() []string {
+func (wi workItem) GetCommand() []string {
 	return append([]string{"ffmpeg"}, wi.FFmpegArgs()...)
 }
 

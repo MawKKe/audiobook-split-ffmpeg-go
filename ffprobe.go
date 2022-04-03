@@ -40,7 +40,7 @@ func ReadFile(infile string) (InputFileMetadata, error) {
 	basenoext := strings.TrimSuffix(base, ext)
 	extnodot := strings.TrimPrefix(ext, ".")
 	return InputFileMetadata{
-		FFProbeOutput: &output,
+		FFProbeOutput: output,
 		Path:          infile,
 		BaseNoExt:     basenoext,
 		Extension:     extnodot,
