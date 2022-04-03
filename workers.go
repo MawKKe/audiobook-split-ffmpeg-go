@@ -25,8 +25,8 @@ func Process(workItems []workItem, maxConcurrent int) Status {
 	}
 
 	var wg sync.WaitGroup
-	chJob := make(chan job)
-	chRes := make(chan result)
+	chJob := make(chan job, len(workItems))
+	chRes := make(chan result, len(workItems))
 	for t := 0; t < maxConcurrent; t++ {
 		wg.Add(1)
 		go func() {
@@ -37,9 +37,12 @@ func Process(workItems []workItem, maxConcurrent int) Status {
 			}
 		}()
 	}
+	// the channel was created with enough room to hold all jobs,
+	// so this should finish immediately
 	for i := range workItems {
 		chJob <- job{&workItems[i]}
 	}
+
 	var failed int
 	var successful int
 	for i := 0; i < len(workItems); i++ {
