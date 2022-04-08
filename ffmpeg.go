@@ -61,7 +61,7 @@ func (wi workItem) GetCommand() []string {
 }
 
 // Produces a list of arguments that are going to be passed to FFMpeg for actual processing step.
-func (wi *workItem) FFmpegArgs() []string {
+func (wi workItem) FFmpegArgs() []string {
 	args := []string{
 		"-nostdin",
 		"-i", wi.imeta.Path,
@@ -96,7 +96,7 @@ func (wi *workItem) FFmpegArgs() []string {
 
 // Performs the actual processing step via ffmpeg.
 // Expects 'ffmpeg' be somewhere in user's $PATH.
-func (wi *workItem) Process() error {
+func (wi workItem) Process() error {
 	const defaultPerm = 0755
 	err := os.MkdirAll(wi.OutDirectory, defaultPerm)
 	if err != nil {
