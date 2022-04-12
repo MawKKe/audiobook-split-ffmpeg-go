@@ -21,9 +21,17 @@ func main() {
 
 	flag.Parse()
 
-	// Both are required. However, the 'flag' package does not allow us
-	// to specify that in the option declaration like python argparse does.
-	if *flagInfile == "" || *flagOutdir == "" {
+	// Both infile and outdir are required. However, the 'flag' package does not allow us
+	// to specify that in the option declaration like python argparse does...
+	var missing []string
+	if *flagInfile == "" {
+		missing = append(missing, "infile")
+	}
+	if *flagOutdir == "" {
+		missing = append(missing, "outdir")
+	}
+	if len(missing) > 0 {
+		fmt.Println(fmt.Errorf("ERROR: missing argument values %v", strings.Join(missing, ",")))
 		flag.Usage()
 		os.Exit(125)
 	}
