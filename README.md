@@ -100,11 +100,11 @@ requires no external Go libraries at the moment.
 
 To start working on the code, clone the repo:
 
-    $ git clone https://github.com/MawKKe/audiobook-split-ffmpeg-go && audiobook-split-ffmpeg
+    $ git clone https://github.com/MawKKe/audiobook-split-ffmpeg-go && cd audiobook-split-ffmpeg-go
 
 To build the main binary:
 
-    $ make go
+    $ make
 
 or manually:
 
