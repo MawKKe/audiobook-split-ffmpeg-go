@@ -19,4 +19,7 @@ fix:
 exe:
 	go build ./cmd/audiobook-split-ffmpeg-go
 
-.PHONY: build test fmt vet audiobook-split-ffmpeg-go
+clean:
+	go clean -x ./...
+
+.PHONY: build test fmt vet clean
