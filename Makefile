@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := audiobook-split-ffmpeg-go
+.DEFAULT_GOAL := exe
 
 build:
 	go build ./...
@@ -16,7 +16,7 @@ vet:
 fix:
 	find . -type f -iname "*.go" -exec goimports -w {} +
 
-audiobook-split-ffmpeg-go:
-	go build -o $@ ./cmd/audiobook-split-ffmpeg-go
+exe:
+	go build ./cmd/audiobook-split-ffmpeg-go
 
 .PHONY: build test fmt vet audiobook-split-ffmpeg-go
