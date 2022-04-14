@@ -14,6 +14,8 @@ and need a project...
 **NOTE**: this is a quick rewrite and test coverage is not that great; there might be bugs
 not present in the Python version.
 
+[![Go](https://github.com/MawKKe/audiobook-split-ffmpeg-go/workflows/Go/badge.svg)](https://github.com/MawKKe/audiobook-split-ffmpeg-go/actions/workflows/go.yml)
+
 # Example
 
 Let's say, you have an audio file `mybook.m4b`, for which `ffprobe -i mybook.m4b`
