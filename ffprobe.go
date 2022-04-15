@@ -44,6 +44,7 @@ func ReadChaptersFromJson(encoded []byte) (FFProbeOutput, error) {
 	return decoded, nil
 }
 
+// Reads file metadata of file at path 'infile'
 func ReadFile(infile string) (InputFileMetadata, error) {
 	output, err := ReadChapters(infile)
 	if err != nil {

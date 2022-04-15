@@ -27,12 +27,29 @@ type result struct {
 	wi  *workItem
 	err error
 }
+
+// Describes how many chapter extractions succeeded and how many failed.
+// Note that successful + failed should equal submitted, otherwise an error
+// happened somewhere.
 type Status struct {
 	Successful int
 	Failed     int
 	Submitted  int
 }
 
+// Process all workItems, i.e. do the actual extraction process. The workItems
+// contain all the necessary information for the extractions to be performed.
+// The processing happens in parallel, using at most 'maxConcurrent' ffmpeg
+// worker processes.
+//
+// Note: the extraction process does not re-encode the audio stream, thus the
+// processing performance is not likely CPU-bound. However, using too many
+// workers extracting the same file may saturate I/O, decreasing overall
+// performance. In summary: increasing 'maxConcurrent' value may improve
+// performance, but only up to a point.
+//
+// TODO: add similar processin interface with support for context.Context (use
+// exec.CommandContext?)
 func Process(workItems []workItem, maxConcurrent int) Status {
 	if maxConcurrent <= 0 {
 		maxConcurrent = runtime.NumCPU()
@@ -77,6 +94,7 @@ func Process(workItems []workItem, maxConcurrent int) Status {
 	return Status{Successful: successful, Failed: failed, Submitted: len(workItems)}
 }
 
+// Produce a printable string from Status
 func (s Status) String() string {
 	wtf := s.Submitted - (s.Successful + s.Failed)
 	return fmt.Sprintf("total %d submitted jobs => success: %d, failed: %d, missing: %d", s.Submitted, s.Successful, s.Failed, wtf)

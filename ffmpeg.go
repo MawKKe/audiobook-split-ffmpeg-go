@@ -70,11 +70,14 @@ func (imeta InputFileMetadata) ComputeWorkItems(outdir string, opts OutFileOpts)
 	return w_items, nil
 }
 
+// Get list of command line arguments that would produce the chapter file
+// specific to this workItem
 func (wi workItem) GetCommand() []string {
 	return append([]string{"ffmpeg"}, wi.FFmpegArgs()...)
 }
 
-// Produces a list of arguments that are going to be passed to FFMpeg for actual processing step.
+// Produces a list of arguments that are going to be passed to FFMpeg for
+// actual processing step.
 func (wi workItem) FFmpegArgs() []string {
 	args := []string{
 		"-nostdin",
