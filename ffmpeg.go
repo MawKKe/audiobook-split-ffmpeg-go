@@ -35,7 +35,13 @@ func computeOutname(outdir string, opts OutFileOpts, ch Chapter, imeta InputFile
 	// adjusted chapter Id
 	num := ch.ID + opts.EnumOffset
 
-	return fmt.Sprintf("%0*d - %v.%v", opts.EnumPaddedWidth, num, baseName, imeta.Extension)
+	ext := imeta.Extension
+
+	if opts.UseAlternateExtension != "" {
+		ext = opts.UseAlternateExtension
+	}
+
+	return fmt.Sprintf("%0*d - %v.%v", opts.EnumPaddedWidth, num, baseName, ext)
 }
 
 // ComputeWorkItems processes struct workItem for each chapter. The workItem shall contain all

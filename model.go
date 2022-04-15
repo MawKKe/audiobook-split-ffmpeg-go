@@ -84,6 +84,16 @@ type OutFileOpts struct {
 	// Set valut to  0 to disable padding
 	// Otherwise, the value will determine the number of leading zeros.
 	EnumPaddedWidth int
+
+	// Use this output file extension instead of the input file extension.
+	//
+	// WARNING: if the default file container type associated with this new extension
+	// is incompatible with the input code, ffmpeg most likely will re-encode
+	// the audio stream to something that IS compatible; all the parameters for
+	// the conversion are chosen by ffmpeg (currently this library provides no support
+	// for specifying the output codec parameters, this may change in the
+	// future...).
+	UseAlternateExtension string
 }
 
 // DefaultOutFileOpts returns some sensible set of default values for OutFileOpts.
