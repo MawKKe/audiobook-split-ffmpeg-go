@@ -14,9 +14,9 @@
 
 package ffmpegsplit
 
-// Represents a single chapter in ffprobe output JSON
+// Chapter represents a single chapter in ffprobe output JSON
 type Chapter struct {
-	Id        int               `json:"id"`
+	ID        int               `json:"id"`
 	TimeBase  string            `json:"time_base"` // float or fixnum? Not needed anyways
 	Start     int               `json:"start"`
 	StartTime string            `json:"start_time"` // float or fixnum? Not needed anyways
@@ -25,13 +25,13 @@ type Chapter struct {
 	Tags      map[string]string `json:"tags"`
 }
 
-// Represents the JSON structure returned by ffprobe command
+// FFProbeOutput represents the JSON structure returned by ffprobe command
 type FFProbeOutput struct {
 	Chapters     []Chapter `json:"chapters"`
-	maxChapterId int       // hacky, but works..?
+	maxChapterID int       // hacky, but works..?
 }
 
-// Represents all important details of the input file.
+// InputFileMetadata tepresents all important details of the input file.
 // Produced by ReadFile().
 type InputFileMetadata struct {
 	Path          string
@@ -40,15 +40,15 @@ type InputFileMetadata struct {
 	FFProbeOutput FFProbeOutput
 }
 
-// How many chapters were found in the input file by ffprobe
+// NumChapters returns the number of chapters found in the input file.
 func (imeta InputFileMetadata) NumChapters() int {
 	return len(imeta.FFProbeOutput.Chapters)
 }
 
-// Represents all the required information for processing the input
+// WorkItem represents all the required information for processing the input
 // file into a chapter specific file. To do the actual processing,
 // run WorkItem.Process()
-type workItem struct {
+type WorkItem struct {
 	Infile       string
 	Outfile      string
 	OutDirectory string
@@ -57,8 +57,9 @@ type workItem struct {
 	opts         OutFileOpts
 }
 
-// Used-defined options specifying how the output files will be named and what kind
-// of metadata they shall contain (if metadata even is available in the original input file).
+// OutFileOpts contains user-defined options specifying how the output files
+// will be named and what kind of metadata they shall contain (if metadata even
+// is available in the original input file).
 type OutFileOpts struct {
 	// Place chapter title in output file name? (NOTE: Only if title is available)
 	UseTitleInName bool
@@ -85,7 +86,7 @@ type OutFileOpts struct {
 	EnumPaddedWidth int
 }
 
-// Returns some sensible set of default values.
+// DefaultOutFileOpts returns some sensible set of default values for OutFileOpts.
 func DefaultOutFileOpts() OutFileOpts {
 	var opts OutFileOpts
 	opts.UseTitleInName = true

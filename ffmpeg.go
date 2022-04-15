@@ -33,30 +33,30 @@ func computeOutname(outdir string, opts OutFileOpts, ch Chapter, imeta InputFile
 	}
 
 	// adjusted chapter Id
-	num := ch.Id + opts.EnumOffset
+	num := ch.ID + opts.EnumOffset
 
 	return fmt.Sprintf("%0*d - %v.%v", opts.EnumPaddedWidth, num, baseName, imeta.Extension)
 }
 
-// Produces struct workItem for each chapter. The workItem shall contain all
+// ComputeWorkItems processes struct workItem for each chapter. The workItem shall contain all
 // the necessary information in order to extract the chapter using ffmpeg. When
 // the sequence of workItems have been produced, the final processing step
 // can be performed by calling workItem.Process().
-func (imeta InputFileMetadata) ComputeWorkItems(outdir string, opts OutFileOpts) ([]workItem, error) {
-	var w_items []workItem
+func (imeta InputFileMetadata) ComputeWorkItems(outdir string, opts OutFileOpts) ([]WorkItem, error) {
+	var wItems []WorkItem
 
 	if opts.EnumOffset < 0 {
 		opts.EnumOffset = 0
 	}
 
 	if opts.EnumPaddedWidth < 0 {
-		maxChAdjusted := imeta.FFProbeOutput.maxChapterId + opts.EnumOffset
+		maxChAdjusted := imeta.FFProbeOutput.maxChapterID + opts.EnumOffset
 		opts.EnumPaddedWidth = len(fmt.Sprintf("%d", maxChAdjusted))
 	}
 
 	for _, chap := range imeta.FFProbeOutput.Chapters {
 		outfile := computeOutname(outdir, opts, chap, imeta)
-		wi := workItem{
+		wi := WorkItem{
 			Infile:       imeta.Path,
 			Outfile:      outfile,
 			OutDirectory: outdir,
@@ -64,21 +64,21 @@ func (imeta InputFileMetadata) ComputeWorkItems(outdir string, opts OutFileOpts)
 			imeta:        imeta,
 			opts:         opts,
 		}
-		w_items = append(w_items, wi)
+		wItems = append(wItems, wi)
 	}
 
-	return w_items, nil
+	return wItems, nil
 }
 
-// Get list of command line arguments that would produce the chapter file
+// GetCommand produces a list of command line arguments that would produce the chapter file
 // specific to this workItem
-func (wi workItem) GetCommand() []string {
+func (wi WorkItem) GetCommand() []string {
 	return append([]string{"ffmpeg"}, wi.FFmpegArgs()...)
 }
 
-// Produces a list of arguments that are going to be passed to FFMpeg for
-// actual processing step.
-func (wi workItem) FFmpegArgs() []string {
+// FFmpegArgs converts a WorkItem to a list of arguments that are going to be passed to
+// ffmpeg for actual processing step.
+func (wi WorkItem) FFmpegArgs() []string {
 	args := []string{
 		"-nostdin",
 		"-i", wi.imeta.Path,
@@ -91,29 +91,29 @@ func (wi workItem) FFmpegArgs() []string {
 		"-n",
 	}
 
-	var metadata_track []string
+	var metadataTrack []string
 	if wi.opts.UseChapterNumberInMeta {
 		off := wi.opts.EnumOffset
-		metadata_track = []string{"-metadata", fmt.Sprintf("track=%v/%v",
-			int(wi.Chapter.Id)+off,
-			wi.imeta.FFProbeOutput.maxChapterId+off)}
+		metadataTrack = []string{"-metadata", fmt.Sprintf("track=%v/%v",
+			int(wi.Chapter.ID)+off,
+			wi.imeta.FFProbeOutput.maxChapterID+off)}
 	}
 
-	var metadata_title []string
+	var metadataTitle []string
 
 	if Title, ok := wi.Chapter.Tags["title"]; ok && Title != "" && wi.opts.UseTitleInMeta {
-		metadata_title = []string{"-metadata", fmt.Sprintf("title=%v", Title)}
+		metadataTitle = []string{"-metadata", fmt.Sprintf("title=%v", Title)}
 	}
 
-	args = append(args, metadata_track...)
-	args = append(args, metadata_title...)
+	args = append(args, metadataTrack...)
+	args = append(args, metadataTitle...)
 	args = append(args, filepath.Join(wi.OutDirectory, wi.Outfile))
 	return args
 }
 
-// Performs the actual processing step via ffmpeg.
+// Process performs the actual processing step via ffmpeg.
 // Expects 'ffmpeg' be somewhere in user's $PATH.
-func (wi workItem) Process() error {
+func (wi WorkItem) Process() error {
 	const defaultPerm = 0755
 	err := os.MkdirAll(wi.OutDirectory, defaultPerm)
 	if err != nil {

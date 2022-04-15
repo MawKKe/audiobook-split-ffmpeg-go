@@ -21,7 +21,7 @@ import (
 
 func TestDecode(t *testing.T) {
 	var probeOut FFProbeOutput
-	err := json.Unmarshal([]byte(chapters_json), &probeOut)
+	err := json.Unmarshal([]byte(chaptersJSON), &probeOut)
 	if err != nil {
 		t.Fatalf("Failed to decode chapters JSON: %v", err)
 	}
@@ -31,7 +31,7 @@ func TestDecode(t *testing.T) {
 }
 
 // test data
-var chapters_json string = `
+var chaptersJSON string = `
 {
     "chapters": [
         {

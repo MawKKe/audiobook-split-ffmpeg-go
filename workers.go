@@ -21,14 +21,14 @@ import (
 )
 
 type job struct {
-	wi *workItem
+	wi *WorkItem
 }
 type result struct {
-	wi  *workItem
+	wi  *WorkItem
 	err error
 }
 
-// Describes how many chapter extractions succeeded and how many failed.
+// Status describes how many chapter extractions succeeded and how many failed.
 // Note that successful + failed should equal submitted, otherwise an error
 // happened somewhere.
 type Status struct {
@@ -50,7 +50,7 @@ type Status struct {
 //
 // TODO: add similar processin interface with support for context.Context (use
 // exec.CommandContext?)
-func Process(workItems []workItem, maxConcurrent int) Status {
+func Process(workItems []WorkItem, maxConcurrent int) Status {
 	if maxConcurrent <= 0 {
 		maxConcurrent = runtime.NumCPU()
 	}
@@ -83,10 +83,10 @@ func Process(workItems []workItem, maxConcurrent int) Status {
 		res := <-chRes
 		if res.err != nil {
 			fmt.Println(fmt.Errorf("extraction failed: %v", res.err))
-			failed += 1
+			failed++
 		} else {
 			fmt.Println("Done:", res.wi.Outfile)
-			successful += 1
+			successful++
 		}
 	}
 	close(chJob) // causes workers to exit loop

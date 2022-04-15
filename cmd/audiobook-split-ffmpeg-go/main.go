@@ -82,7 +82,7 @@ func main() {
 
 	if *flagOnlyShowCmds {
 		for i := range workItems {
-			fmt.Println(strings.Join(escape_cmd(workItems[i].GetCommand()), " "))
+			fmt.Println(strings.Join(escapeCmd(workItems[i].GetCommand()), " "))
 		}
 		os.Exit(0)
 	}
@@ -91,7 +91,7 @@ func main() {
 	fmt.Println("Status:", status)
 }
 
-func escape_cmd(unescaped []string) []string {
+func escapeCmd(unescaped []string) []string {
 	var escaped []string
 	for _, s := range unescaped {
 		escaped = append(escaped, strconv.Quote(s))
