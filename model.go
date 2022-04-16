@@ -40,11 +40,6 @@ type InputFileMetadata struct {
 	FFProbeOutput FFProbeOutput
 }
 
-// NumChapters returns the number of chapters found in the input file.
-func (imeta InputFileMetadata) NumChapters() int {
-	return len(imeta.FFProbeOutput.Chapters)
-}
-
 // WorkItem represents all the required information for processing the input
 // file into a chapter specific file. To do the actual processing,
 // run WorkItem.Process()
@@ -55,6 +50,21 @@ type WorkItem struct {
 	Chapter      Chapter
 	imeta        InputFileMetadata
 	opts         OutFileOpts
+}
+
+// ChapterFilterFunction is a function that determines whether a chapter
+// is to be processed or not. The function follows 'filter' semantics,
+// i.e the chapter is to be skiped if the ChapterFilter function returns
+// true.
+type ChapterFilterFunction func(Chapter) bool
+
+// ChapterFilter is a wrapper structure for the filtering functions; besides
+// the filter function itself, it holds a description field for clarity.
+// The description is not necessary for the filter function, but may help
+// in debugging.
+type ChapterFilter struct {
+	Description string
+	Filter      ChapterFilterFunction
 }
 
 // OutFileOpts contains user-defined options specifying how the output files
@@ -94,16 +104,8 @@ type OutFileOpts struct {
 	// for specifying the output codec parameters, this may change in the
 	// future...).
 	UseAlternateExtension string
-}
 
-// DefaultOutFileOpts returns some sensible set of default values for OutFileOpts.
-func DefaultOutFileOpts() OutFileOpts {
-	var opts OutFileOpts
-	opts.UseTitleInName = true
-	opts.UseTitleInMeta = true
-	opts.UseChapterNumberInMeta = true
-	opts.EnumOffset = -1
-	opts.EnumPaddedWidth = -1
-	return opts
-
+	// Filters is a list of user-definable functions for filtering chapters.
+	// To add filter, use method AddFilter().
+	Filters []ChapterFilter
 }

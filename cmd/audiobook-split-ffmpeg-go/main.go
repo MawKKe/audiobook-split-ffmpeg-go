@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	ffmpegsplit "github.com/MawKKe/audiobook-split-ffmpeg-go"
+	intervals "github.com/MawKKe/integer-interval-expressions-go"
 )
 
 func main() {
@@ -33,6 +34,7 @@ func main() {
 	flagConcurrency := flag.Int("jobs", 0, "Number of concurrent ffmpeg jobs (default: num of cpus). OPTIONAL")
 	flagNoUseTitle := flag.Bool("no-use-title", false, "Only show which ffmpeg commands would run, without running them. OPTIONAL")
 	flagSwapExt := flag.String("swap-extension", "", "Use this output file extension instead (WARNING: may force audio re-encoding)")
+	flagSelectChapters := flag.String("select-chapters", "", "Only exctract these chapters")
 
 	flag.Parse()
 
@@ -73,6 +75,21 @@ func main() {
 
 	opts.UseTitleInName = !*flagNoUseTitle
 	opts.UseAlternateExtension = *flagSwapExt
+
+	if *flagSelectChapters != "" {
+		expression, err := intervals.ParseExpression(*flagSelectChapters)
+		if err != nil {
+			fmt.Println("error in select-chapters:", err)
+			os.Exit(2)
+		}
+		selectChapter := func(ch ffmpegsplit.Chapter) bool {
+			return !expression.Matches(ch.ID)
+		}
+
+		opts.AddFilter(ffmpegsplit.ChapterFilter{
+			Description: "Select by chapter ID", Filter: selectChapter,
+		})
+	}
 
 	workItems, err := imeta.ComputeWorkItems(*flagOutdir, opts)
 	if err != nil {
