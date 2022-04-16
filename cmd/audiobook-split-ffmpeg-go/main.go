@@ -82,12 +82,12 @@ func main() {
 			fmt.Println("error in select-chapters:", err)
 			os.Exit(2)
 		}
-		selectChapter := func(ch ffmpegsplit.Chapter) bool {
+		filterChapter := func(ch ffmpegsplit.Chapter) bool {
 			return !expression.Matches(ch.ID)
 		}
 
 		opts.AddFilter(ffmpegsplit.ChapterFilter{
-			Description: "Select by chapter ID", Filter: selectChapter,
+			Description: "Select by chapter ID", Filter: filterChapter,
 		})
 	}
 
