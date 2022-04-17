@@ -60,7 +60,7 @@ func (imeta InputFileMetadata) ComputeWorkItems(outdir string, opts OutFileOpts)
 		opts.EnumPaddedWidth = len(fmt.Sprintf("%d", maxChAdjusted))
 	}
 
-    // TODO deliver this information to user somehow
+	// TODO deliver this information to user somehow
 	var filtered int
 	for _, chap := range imeta.FFProbeOutput.Chapters {
 		if opts.IsFiltered(chap) {
