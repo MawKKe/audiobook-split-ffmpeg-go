@@ -1,5 +1,7 @@
 .DEFAULT_GOAL := exe
 
+PROJECT_URL := github.com/MawKKe/audiobook-split-ffmpeg-go
+
 build:
 	go build ./...
 
@@ -22,4 +24,10 @@ exe:
 clean:
 	go clean -x ./...
 
-.PHONY: build test fmt vet clean
+git_latest_version_tag := git describe --tags --match "v[0-9]*" --abbrev=0
+
+# Make sure the tags are published and pushed to the public remote!
+sync-package-proxy:
+	GOPROXY=proxy.golang.org go list -m ${PROJECT_URL}@$(shell ${git_latest_version_tag})
+
+.PHONY: build test fmt vet clean sync-package-proxy
