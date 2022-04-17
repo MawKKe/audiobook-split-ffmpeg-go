@@ -34,7 +34,8 @@ func main() {
 	flagConcurrency := flag.Int("jobs", 0, "Number of concurrent ffmpeg jobs (default: num of cpus). OPTIONAL")
 	flagNoUseTitle := flag.Bool("no-use-title", false, "Only show which ffmpeg commands would run, without running them. OPTIONAL")
 	flagSwapExt := flag.String("swap-extension", "", "Use this output file extension instead (WARNING: may force audio re-encoding)")
-	flagSelectChapters := flag.String("select-chapters", "", "Only exctract these chapters")
+	flagSelectChapters := flag.String("select-chapters", "", "Exctract only the specified chapters.\n"+
+		"The argument value should be a comma-separated list of chapter numbers\nor ranges of chapter numbers. For example '1,3-5,7-'")
 
 	flag.Parse()
 
