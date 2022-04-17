@@ -89,7 +89,6 @@ func ReadChapters(infile string) (FFProbeOutput, error) {
 	err := cmd.Run()
 
 	if err != nil || !cmd.ProcessState.Success() {
-		//return FFProbeOutput{}, errors.New(strings.TrimSuffix(stderr.String(), "\n"))
 		emsg := strings.TrimSuffix(stderr.String(), "\n")
 		if emsg != "" {
 			return FFProbeOutput{}, fmt.Errorf("ffprobe error: %s: %w", emsg, err)
