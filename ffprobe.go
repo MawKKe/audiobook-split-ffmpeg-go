@@ -18,7 +18,7 @@ package ffmpegsplit
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -89,7 +89,13 @@ func ReadChapters(infile string) (FFProbeOutput, error) {
 	err := cmd.Run()
 
 	if err != nil || !cmd.ProcessState.Success() {
-		return FFProbeOutput{}, errors.New(strings.TrimSuffix(stderr.String(), "\n"))
+		//return FFProbeOutput{}, errors.New(strings.TrimSuffix(stderr.String(), "\n"))
+		emsg := strings.TrimSuffix(stderr.String(), "\n")
+		if emsg != "" {
+			return FFProbeOutput{}, fmt.Errorf("ffprobe error: %s: %w", emsg, err)
+		} else {
+			return FFProbeOutput{}, fmt.Errorf("ffprobe error: %w", err)
+		}
 	}
 
 	return ReadChaptersFromJSON(stdout.Bytes())
