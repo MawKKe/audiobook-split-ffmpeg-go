@@ -88,13 +88,12 @@ func ReadChapters(infile string) (FFProbeOutput, error) {
 	// NOTE: Runs in blocking mode
 	err := cmd.Run()
 
-	if err != nil || !cmd.ProcessState.Success() {
+	if err != nil {
 		emsg := strings.TrimSuffix(stderr.String(), "\n")
 		if emsg != "" {
 			return FFProbeOutput{}, fmt.Errorf("ffprobe error: %s: %w", emsg, err)
-		} else {
-			return FFProbeOutput{}, fmt.Errorf("ffprobe error: %w", err)
 		}
+		return FFProbeOutput{}, fmt.Errorf("ffprobe error: %w", err)
 	}
 
 	return ReadChaptersFromJSON(stdout.Bytes())

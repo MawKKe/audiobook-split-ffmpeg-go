@@ -16,7 +16,6 @@ package ffmpegsplit
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -143,7 +142,10 @@ func (wi WorkItem) Process() error {
 
 	if err != nil {
 		msg := strings.Trim(stderr.String(), "\n")
-		return errors.New(msg)
+		if msg != "" {
+			return fmt.Errorf("ffmpeg error: %s: %w", msg, err)
+		}
+		return fmt.Errorf("ffmpeg error: %w", err)
 	}
 
 	return nil
