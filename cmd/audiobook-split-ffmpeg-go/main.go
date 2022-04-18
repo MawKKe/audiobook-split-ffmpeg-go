@@ -25,27 +25,46 @@ import (
 	intervals "github.com/MawKKe/integer-interval-expressions-go"
 )
 
-func main() {
-	//flagVerbose := flag.Bool("verbose", false, "Show verbose (debug) output") // print stuff in main?
-	flagInfile := flag.String("infile", "", "Input file path. REQUIRED.")
-	flagOutdir := flag.String("outdir", "", "Output directory path. REQUIRED.")
-	flagOnlyShowChaps := flag.Bool("only-show-chapters", false, "Only show parsed chapters, then exit. OPTIONAL")
-	flagOnlyShowCmds := flag.Bool("only-show-commands", false, "Only show final ffmpeg commands, then exit. OPTIONAL")
-	flagConcurrency := flag.Int("jobs", 0, "Number of concurrent ffmpeg jobs (default: num of cpus). OPTIONAL")
-	flagNoUseTitle := flag.Bool("no-use-title", false, "Only show which ffmpeg commands would run, without running them. OPTIONAL")
-	flagSwapExt := flag.String("swap-extension", "", "Use this output file extension instead (WARNING: may force audio re-encoding)")
-	flagSelectChapters := flag.String("select-chapters", "", "Exctract only the specified chapters.\n"+
-		"The argument value should be a comma-separated list of chapter numbers\nor ranges of chapter numbers. For example '1,3-5,7-'")
+type ProgramArgs struct {
+	InFile          string
+	OutDir          string
+	OnlyShowChaps   bool
+	OnlyShowCmds    bool
+	Concurrency     int
+	NoUseTitle      bool
+	SwapExt         string
+	SelectByChapter ffmpegsplit.ChapterFilterFunction
+}
 
+func ParseCommandline() (args ProgramArgs) {
+	var selectChapters string
+	flag.StringVar(&args.InFile, "infile", "",
+		"Input file path. REQUIRED.")
+	flag.StringVar(&args.OutDir, "outdir", "",
+		"Output directory path. REQUIRED.")
+	flag.BoolVar(&args.OnlyShowChaps, "only-show-chapters", false,
+		"Only show parsed chapters, then exit. OPTIONAL")
+	flag.BoolVar(&args.OnlyShowCmds, "only-show-commands", false,
+		"Only show final ffmpeg commands, then exit. OPTIONAL")
+	flag.IntVar(&args.Concurrency, "jobs", 0,
+		"Number of concurrent ffmpeg jobs (default: num of cpus). OPTIONAL")
+	flag.BoolVar(&args.NoUseTitle, "no-use-title", false,
+		"Only show which ffmpeg commands would run, without running them. OPTIONAL")
+	flag.StringVar(&args.SwapExt, "swap-extension", "",
+		"Use this output file extension instead (WARNING: may force audio re-encoding)")
+	flag.StringVar(&selectChapters, "select-chapters", "",
+		"Exctract only the specified chapters.\n"+
+			"The argument value should be a comma-separated list of chapter numbers\n"+
+			"or ranges of chapter numbers. For example '1,3-5,7-'")
 	flag.Parse()
 
 	// Both infile and outdir are required. However, the 'flag' package does not allow us
 	// to specify that in the option declaration like python argparse does...
 	var missing []string
-	if *flagInfile == "" {
+	if args.InFile == "" {
 		missing = append(missing, "infile")
 	}
-	if *flagOutdir == "" {
+	if args.OutDir == "" {
 		missing = append(missing, "outdir")
 	}
 	if len(missing) > 0 {
@@ -54,7 +73,23 @@ func main() {
 		os.Exit(125)
 	}
 
-	imeta, err := ffmpegsplit.ReadFile(*flagInfile)
+	if selectChapters != "" {
+		expression, err := intervals.ParseExpression(selectChapters)
+		if err != nil {
+			fmt.Println("error in select-chapters:", err)
+			os.Exit(2)
+		}
+		args.SelectByChapter = func(ch ffmpegsplit.Chapter) bool {
+			return !expression.Matches(ch.ID)
+		}
+	}
+	return
+}
+
+func main() {
+	args := ParseCommandline()
+
+	imeta, err := ffmpegsplit.ReadFile(args.InFile)
 
 	if err != nil {
 		fmt.Println(fmt.Errorf("Failed to read chapters: %w", err))
@@ -64,7 +99,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	if *flagOnlyShowChaps {
+	if args.OnlyShowChaps {
 		fmt.Printf("Found %v chapters:\n", imeta.NumChapters())
 		for _, chap := range imeta.FFProbeOutput.Chapters {
 			fmt.Printf("%+v\n", chap)
@@ -74,25 +109,16 @@ func main() {
 
 	opts := ffmpegsplit.DefaultOutFileOpts()
 
-	opts.UseTitleInName = !*flagNoUseTitle
-	opts.UseAlternateExtension = *flagSwapExt
+	opts.UseTitleInName = !args.NoUseTitle
+	opts.UseAlternateExtension = args.SwapExt
 
-	if *flagSelectChapters != "" {
-		expression, err := intervals.ParseExpression(*flagSelectChapters)
-		if err != nil {
-			fmt.Println("error in select-chapters:", err)
-			os.Exit(2)
-		}
-		filterChapter := func(ch ffmpegsplit.Chapter) bool {
-			return !expression.Matches(ch.ID)
-		}
-
+	if args.SelectByChapter != nil {
 		opts.AddFilter(ffmpegsplit.ChapterFilter{
-			Description: "Select by chapter ID", Filter: filterChapter,
+			Description: "Select by chapter ID", Filter: args.SelectByChapter,
 		})
 	}
 
-	workItems, err := imeta.ComputeWorkItems(*flagOutdir, opts)
+	workItems, err := imeta.ComputeWorkItems(args.OutDir, opts)
 	if err != nil {
 		fmt.Printf("Failed to compute workitems: %v\n", err)
 		os.Exit(2)
@@ -100,14 +126,14 @@ func main() {
 
 	//fmt.Printf("Computed %v WorkItems\n", len(workItems))
 
-	if *flagOnlyShowCmds {
+	if args.OnlyShowCmds {
 		for i := range workItems {
 			fmt.Println(strings.Join(escapeCmd(workItems[i].GetCommand()), " "))
 		}
 		os.Exit(0)
 	}
 
-	status := ffmpegsplit.Process(workItems, *flagConcurrency)
+	status := ffmpegsplit.Process(workItems, args.Concurrency)
 	fmt.Println("Status:", status)
 }
 
