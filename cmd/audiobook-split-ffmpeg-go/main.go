@@ -37,7 +37,6 @@ type ProgramArgs struct {
 }
 
 func ParseCommandline() (args ProgramArgs) {
-	var selectChapters string
 	flag.StringVar(&args.InFile, "infile", "",
 		"Input file path. REQUIRED.")
 	flag.StringVar(&args.OutDir, "outdir", "",
@@ -52,10 +51,29 @@ func ParseCommandline() (args ProgramArgs) {
 		"Only show which ffmpeg commands would run, without running them. OPTIONAL")
 	flag.StringVar(&args.SwapExt, "swap-extension", "",
 		"Use this output file extension instead (WARNING: may force audio re-encoding)")
-	flag.StringVar(&selectChapters, "select-chapters", "",
-		"Exctract only the specified chapters.\n"+
-			"The argument value should be a comma-separated list of chapter numbers\n"+
-			"or ranges of chapter numbers. For example '1,3-5,7-'")
+
+	var selectChaptersHelp string = "Exctract only the specified chapters.\n" +
+		"The argument value should be a comma-separated list of chapter\n" +
+		"numbers or ranges of chapter numbers. For example '1,3-5,7-'"
+
+	flag.Func("select-chapters", selectChaptersHelp, func(exprStr string) error {
+		if exprStr == "" {
+			return fmt.Errorf("expression would match 0 chapters")
+		}
+		if exprStr == "*" {
+			// match all chapters, default behavior
+			return nil
+		}
+		expression, err := intervals.ParseExpression(exprStr)
+		if err != nil {
+			return err
+		}
+		args.SelectByChapter = func(ch ffmpegsplit.Chapter) bool {
+			return !expression.Matches(ch.ID)
+		}
+		return nil
+	})
+
 	flag.Parse()
 
 	// Both infile and outdir are required. However, the 'flag' package does not allow us
@@ -73,16 +91,6 @@ func ParseCommandline() (args ProgramArgs) {
 		os.Exit(125)
 	}
 
-	if selectChapters != "" {
-		expression, err := intervals.ParseExpression(selectChapters)
-		if err != nil {
-			fmt.Println("error in select-chapters:", err)
-			os.Exit(2)
-		}
-		args.SelectByChapter = func(ch ffmpegsplit.Chapter) bool {
-			return !expression.Matches(ch.ID)
-		}
-	}
 	return
 }
 
