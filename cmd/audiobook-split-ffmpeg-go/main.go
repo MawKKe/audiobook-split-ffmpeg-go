@@ -56,17 +56,22 @@ func ParseCommandline() (args ProgramArgs) {
 		"The argument value should be a comma-separated list of chapter\n" +
 		"numbers or ranges of chapter numbers. For example '1,3-5,7-'"
 
+	// use default options, except we want to allow empty expressions;
+	// we will explicitly handle empty expressions ourselves.
+	selectParseOpts := intervals.DefaultParseOptions()
+	selectParseOpts.AllowEmptyExpression = true
+
 	flag.Func("select-chapters", selectChaptersHelp, func(exprStr string) error {
-		if exprStr == "" {
-			return fmt.Errorf("expression would match 0 chapters")
-		}
-		if exprStr == "*" {
-			// match all chapters, default behavior
-			return nil
-		}
-		expression, err := intervals.ParseExpression(exprStr)
+		expression, err := intervals.ParseExpressionWithOptions(exprStr, selectParseOpts)
 		if err != nil {
 			return err
+		}
+		if expression.MatchesNone() {
+			return fmt.Errorf("expression would match 0 chapters")
+		}
+		if expression.MatchesAll() {
+			// match all chapters, default behavior
+			return nil
 		}
 		args.SelectByChapter = func(ch ffmpegsplit.Chapter) bool {
 			return !expression.Matches(ch.ID)
