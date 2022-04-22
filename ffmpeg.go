@@ -16,6 +16,7 @@ package ffmpegsplit
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -122,9 +123,13 @@ func (wi WorkItem) FFmpegArgs() []string {
 	return args
 }
 
-// Process performs the actual processing step via ffmpeg.
-// Expects 'ffmpeg' be somewhere in user's $PATH.
 func (wi WorkItem) Process() error {
+    return wi.ProcessWithContext(context.Background())
+}
+
+// ProcessWithContext performs the actual processing step via ffmpeg.
+// Expects 'ffmpeg' be somewhere in user's $PATH.
+func (wi WorkItem) ProcessWithContext(ctx context.Context) error {
 	const defaultPerm = 0755
 	err := os.MkdirAll(wi.OutDirectory, defaultPerm)
 	if err != nil {
@@ -134,7 +139,7 @@ func (wi WorkItem) Process() error {
 	// stdout should be empty on success
 	// stderr will contain error message on failure
 	var stderr bytes.Buffer
-	cmd := exec.Command("ffmpeg", wi.FFmpegArgs()...)
+	cmd := exec.CommandContext(ctx, "ffmpeg", wi.FFmpegArgs()...)
 	cmd.Stderr = &stderr
 
 	// Blocks until completion
