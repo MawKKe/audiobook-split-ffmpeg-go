@@ -42,13 +42,13 @@ func ParseCommandline() (args ProgramArgs) {
 	flag.StringVar(&args.OutDir, "outdir", "",
 		"Output directory path. REQUIRED.")
 	flag.BoolVar(&args.OnlyShowChaps, "only-show-chapters", false,
-		"Only show parsed chapters, then exit. OPTIONAL")
+		"Only show parsed chapters, then exit.")
 	flag.BoolVar(&args.OnlyShowCmds, "only-show-commands", false,
-		"Only show final ffmpeg commands, then exit. OPTIONAL")
+		"Only show final ffmpeg commands, then exit.")
 	flag.IntVar(&args.Concurrency, "jobs", 0,
-		"Number of concurrent ffmpeg jobs (default: num of cpus). OPTIONAL")
+		"Number of concurrent ffmpeg jobs (default: num of cpus).")
 	flag.BoolVar(&args.NoUseTitle, "no-use-title", false,
-		"Only show which ffmpeg commands would run, without running them. OPTIONAL")
+		"Only show which ffmpeg commands would run, without running them.")
 	flag.StringVar(&args.SwapExt, "swap-extension", "",
 		"Use this output file extension instead (WARNING: may force audio re-encoding)")
 
