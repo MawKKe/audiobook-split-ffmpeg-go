@@ -17,6 +17,7 @@ package ffmpegsplit
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -44,9 +45,15 @@ func ReadChaptersFromJSON(encoded []byte) (FFProbeOutput, error) {
 	return decoded, nil
 }
 
-// ReadFile reads file metadata of file at path 'infile'
+// ReadFile is an alias for ReadFileWithContext(context.Background(), infile)
 func ReadFile(infile string) (InputFileMetadata, error) {
-	output, err := ReadChapters(infile)
+	return ReadFileWithContext(context.Background(), infile)
+}
+
+// ReadFileWithContext reads file metadata of file at path 'infile'.
+// The associated context is used for controlling the launched subprocesses
+func ReadFileWithContext(ctx context.Context, infile string) (InputFileMetadata, error) {
+	output, err := ReadChaptersWithContext(ctx, infile)
 	if err != nil {
 		return InputFileMetadata{}, err
 	}
@@ -70,15 +77,20 @@ func GetReadChaptersCommandline(infile string) []string {
 	return []string{"-i", infile, "-v", "error", "-print_format", "json", "-show_chapters"}
 }
 
-// ReadChapters collects chapter information from the given file 'infile' using
+// ReadChapters is an alias for ReadChaptersWiithContext(context.Background(), infile)
+func ReadChapters(infile string) (FFProbeOutput, error) {
+	return ReadChaptersWithContext(context.Background(), infile)
+}
+
+// ReadChaptersWithContext collects chapter information from the given file 'infile' using
 // ffprobe. Blocks until subprocess returns. On success, parses the output
 // (JSON) and returns the information in struct FFProbeOutput. Otherwise
 // returns the error produced by either exec.Cmd.Run or json.Decoder.Unmarshal.
 //
 // Expects the program 'ffmpeg' to be somewhere in user's $PATH.
-func ReadChapters(infile string) (FFProbeOutput, error) {
+func ReadChaptersWithContext(ctx context.Context, infile string) (FFProbeOutput, error) {
 	args := GetReadChaptersCommandline(infile)
-	cmd := exec.Command("ffprobe", args...)
+	cmd := exec.CommandContext(ctx, "ffprobe", args...)
 
 	// capture output for further processing and/or error handling
 	var stdout, stderr bytes.Buffer
