@@ -33,7 +33,7 @@ type ProgramArgs struct {
 	Concurrency     int
 	NoUseTitle      bool
 	SwapExt         string
-	SelectByChapter ffmpegsplit.ChapterFilterFunction
+	filterByChapter ffmpegsplit.ChapterFilterFunction
 }
 
 func ParseCommandline() (args ProgramArgs) {
@@ -73,7 +73,7 @@ func ParseCommandline() (args ProgramArgs) {
 			// match all chapters, default behavior
 			return nil
 		}
-		args.SelectByChapter = func(ch ffmpegsplit.Chapter) bool {
+		args.filterByChapter = func(ch ffmpegsplit.Chapter) bool {
 			return !expression.Matches(ch.ID)
 		}
 		return nil
@@ -125,9 +125,9 @@ func main() {
 	opts.UseTitleInName = !args.NoUseTitle
 	opts.UseAlternateExtension = args.SwapExt
 
-	if args.SelectByChapter != nil {
+	if args.filterByChapter != nil {
 		opts.AddFilter(ffmpegsplit.ChapterFilter{
-			Description: "Select by chapter ID", Filter: args.SelectByChapter,
+			Description: "Filter by chapter ID", Filter: args.filterByChapter,
 		})
 	}
 
